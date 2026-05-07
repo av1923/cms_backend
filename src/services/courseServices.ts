@@ -1,7 +1,6 @@
 import { prisma } from "../utils/db";
 import { Prisma } from "@prisma/client";
 import { CourseStatus } from "@prisma/client";
-const statusEnum = status as CourseStatus;
 
 
 export async function createCourse(data: any) {
@@ -92,6 +91,7 @@ export async function getCourseById(id: string) {
 export async function updateCourseStatus(id: string, status: string) {
   const course = await prisma.course.findUnique({ where: { course_id: id } });
   if (!course) return null;
+  const statusEnum = status as CourseStatus;
 
   const validTransitions: Record<string, string[]> = {
     Draft: ["Active", "Archived"],
