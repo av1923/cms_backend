@@ -4,7 +4,7 @@ import { successResponse, commonErrors } from "../../../utils/response";
 
 export async function getPricing(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const course = await prisma.course.findUnique({
       where: { course_id: id },
       include: { pricing: true },
