@@ -6,7 +6,7 @@ import { successResponse, commonErrors } from "../../../utils/response";
 
 export async function assign(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = assignInstructorSchema.parse(req.body);
 
     const assignment = await assignInstructor(id, data.instructor_id, data.section);

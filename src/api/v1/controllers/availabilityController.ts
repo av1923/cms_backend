@@ -15,7 +15,7 @@ const dropSchema = z.object({
 
 export async function getSlots(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const result = await getSlotAvailability(id);
     if (!result) {
       return commonErrors.notFound(res, "Course not found.");
@@ -28,7 +28,7 @@ export async function getSlots(req: Request, res: Response, next: NextFunction) 
 
 export async function enroll(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = enrollSchema.parse(req.body);
 
     const result = await enrollStudent(id, data.student_id, data.section);
@@ -56,7 +56,7 @@ export async function enroll(req: Request, res: Response, next: NextFunction) {
 
 export async function drop(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = dropSchema.parse(req.body);
 
     const result = await dropStudent(id, data.student_id);

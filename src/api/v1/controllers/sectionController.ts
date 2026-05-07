@@ -6,7 +6,7 @@ import { successResponse, commonErrors } from "../../../utils/response";
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = updateSectionSchema.parse(req.body);
 
     const updated = await updateSection(id, data);

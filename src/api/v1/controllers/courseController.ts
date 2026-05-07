@@ -52,7 +52,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function getById(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const course = await getCourseById(id);
 
     if (!course) {
@@ -100,7 +100,7 @@ export async function getById(req: Request, res: Response, next: NextFunction) {
 
 export async function updateStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = updateStatusSchema.parse(req.body);
 
     const updated = await updateCourseStatus(id, data.status);

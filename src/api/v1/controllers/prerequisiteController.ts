@@ -6,7 +6,7 @@ import { successResponse, commonErrors } from "../../../utils/response";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const result = await getPrerequisites(id);
 
     if (!result) {
@@ -27,7 +27,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const data = updatePrerequisitesSchema.parse(req.body);
 
     const result = await updatePrerequisites(id, data);
