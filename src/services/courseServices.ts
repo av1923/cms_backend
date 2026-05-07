@@ -1,5 +1,8 @@
 import { prisma } from "../utils/db";
 import { Prisma } from "@prisma/client";
+import { CourseStatus } from "@prisma/client";
+const statusEnum = status as CourseStatus;
+
 
 export async function createCourse(data: any) {
   const classification = data.is_elective ? "Elective" : "Core";
@@ -102,7 +105,7 @@ export async function updateCourseStatus(id: string, status: string) {
 
   return await prisma.course.update({
     where: { course_id: id },
-    data: { status },
+    data: { status: statusEnum },
   });
 }
 
