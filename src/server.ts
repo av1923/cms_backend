@@ -32,8 +32,8 @@ app.use("/api/v1", routes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
-  app.listen(PORT, () => console.log(`🚀 CMS Backend on port ${PORT}`));
-}
+// if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+//   app.listen(PORT, () => console.log(`🚀 CMS Backend on port ${PORT}`));
+// }
 
 export default app;
