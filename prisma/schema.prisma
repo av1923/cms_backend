@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Course {
+  course_id        String   @id @default(cuid())
+  course_code      String
+  course_name      String
+  course_type      CourseType
+  units            Int      @default(1)
+  semester         String
+  classification   Classification @default(Core)
+  status           CourseStatus @default(Draft)
+  section_capacity Int      @default(0)
+  enrolled_count   Int      @default(0)
+  room_requirement String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  pricing          CoursePricing?
+  prerequisites    Prerequisite[] @relation("CoursePrerequisites")
+  requiredBy       Prerequisite[] @relation("RequiredCourse")
+  instructorAssignments InstructorAssignment[]
+  auditLogs        AuditLog[]
+
+  @@unique([course_code, semester])
+  @@map("courses")
+}
+
+model CoursePricing {
+  pricing_id     String   @id @default(cuid())
+  course_id      String   @unique
+  course         Course   @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+  base_fee       Decimal  @db.Decimal(10, 2)
+  lab_fee        Decimal? @db.Decimal(10, 2)
+  currency       String   @default("PHP")
+  effective_date DateTime @default(now())
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@map("course_pricing")
+}
+
+model Prerequisite {
+  id                 String          @id @default(cuid())
+  course_id          String
+  course             Course          @relation("CoursePrerequisites", fields: [course_id], references: [course_id], onDelete: Cascade)
+  required_course_id String
+  required_course    Course          @relation("RequiredCourse", fields: [required_course_id], references: [course_id], onDelete: Cascade)
+  requirement_type   RequirementType
+  created_at         DateTime        @default(now())
+
+  @@unique([course_id, required_course_id, requirement_type])
+  @@map("prerequisites")
+}
+
+model Instructor {
+  instructor_id   String   @id @default(cuid())
+  instructor_name String
+  email           String   @unique
+  department      String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  assignments     InstructorAssignment[]
+
+  @@map("instructors")
+}
+
+model InstructorAssignment {
+  assignment_id String     @id @default(cuid())
+  course_id     String
+  course        Course     @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+  instructor_id String
+  instructor    Instructor @relation(fields: [instructor_id], references: [instructor_id], onDelete: Cascade)
+  section       String
+  schedule      String?
+  room          String?
+  semester      String
+  assigned_at   DateTime   @default(now())
+
+  @@unique([course_id, section, semester])
+  @@map("instructor_assignments")
+}
+
+model AuditLog {
+  log_id        Int      @id @default(autoincrement())
+  user_id       String
+  user_role     String
+  action        String
+  course_id     String?
+  course        Course?  @relation(fields: [course_id], references: [course_id], onDelete: SetNull)
+  changed_fields Json?
+  ip_address    String?
+  performed_at  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+enum CourseType {
+  Lecture
+  Lab
+}
+
+enum Classification {
+  Core
+  Elective
+  Major
+}
+
+enum CourseStatus {
+  Draft
+  Active
+  Archived
+}
+
+enum RequirementType {
+  prerequisite
+  corequisite
+}
