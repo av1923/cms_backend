@@ -1,7 +1,28 @@
 import { Request, Response, NextFunction } from "express";
-import { loginSchema, refreshSchema } from "../validators/authValidator";
-import { loginUser, refreshTokens } from "../../../services/authServices";
+import { loginSchema, refreshSchema, signupSchema } from "../validators/authValidator";
+import { loginUser, refreshTokens, signupUser } from "../../../services/authServices";
 import { successResponse, commonErrors } from "../../../utils/response";
+
+export async function signup(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = signupSchema.parse(req.body);
+    const result = await signupUser({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+    });
+    return successResponse(res, result, 201);
+  } catch (error: any) {
+    if (error.message === "Email already registered") {
+      return res.status(409).json({ code: 409, message: "Email already registered" });
+    }
+    if (error.name === "ZodError") {
+      return res.status(400).json({ code: 400, message: error.errors });
+    }
+    next(error);
+  }
+}
 
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
@@ -11,6 +32,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   } catch (error: any) {
     if (error.message === "Invalid credentials") {
       return commonErrors.unauthorized(res, "Invalid email or password.");
+    }
+    if (error.message === "Account is disabled") {
+      return res.status(403).json({ code: 403, message: "Account is disabled" });
     }
     next(error);
   }

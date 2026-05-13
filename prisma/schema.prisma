@@ -6,6 +6,19 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  user_id       String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          UserRole @default(Student)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("users")
+}
+
 model Course {
   course_id        String   @id @default(cuid())
   course_code      String
@@ -121,4 +134,13 @@ enum CourseStatus {
 enum RequirementType {
   prerequisite
   corequisite
+}
+
+enum UserRole {
+  CurriculumCommittee
+  DepartmentChair
+  Registrar
+  Admin
+  Student
+  ServiceAccount
 }
