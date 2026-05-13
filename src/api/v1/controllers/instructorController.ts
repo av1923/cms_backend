@@ -1,8 +1,45 @@
 import { Request, Response, NextFunction } from "express";
-import { assignInstructorSchema } from "../validators/instructorValidator";
-import { assignInstructor, getInstructorsBySemester } from "../../../services/instructorServices";
+import { assignInstructorSchema, createInstructorSchema } from "../validators/instructorValidator";
+import { createInstructor, assignInstructor, getInstructorsBySemester } from "../../../services/instructorServices";
 import { logAudit } from "../../../services/auditLogServices";
 import { successResponse, commonErrors } from "../../../utils/response";
+
+export async function create(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = createInstructorSchema.parse(req.body);
+
+    const instructor = await createInstructor({
+      instructor_name: data.instructor_name,
+      email: data.email,
+      department: data.department,
+    });
+
+    await logAudit(
+      req.user!.userId,
+      req.user!.role,
+      "INSTRUCTOR_CREATED",
+      undefined,
+      { instructor_id: instructor.instructor_id, instructor_name: instructor.instructor_name },
+      req.ip || undefined
+    );
+
+    return successResponse(res, {
+      instructor_id: instructor.instructor_id,
+      instructor_name: instructor.instructor_name,
+      email: instructor.email,
+      department: instructor.department,
+      created_at: instructor.created_at.toISOString(),
+    }, 201);
+  } catch (error: any) {
+    if (error.message === "Email already registered") {
+      return res.status(409).json({ code: 409, message: "Email already registered" });
+    }
+    if (error.name === "ZodError") {
+      return res.status(400).json({ code: 400, message: error.errors });
+    }
+    next(error);
+  }
+}
 
 export async function assign(req: Request, res: Response, next: NextFunction) {
   try {

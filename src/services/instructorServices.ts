@@ -1,5 +1,27 @@
 import { prisma } from "../utils/db";
 
+export interface CreateInstructorData {
+  instructor_name: string;
+  email: string;
+  department?: string;
+}
+
+export async function createInstructor(data: CreateInstructorData) {
+  // Check if email already exists
+  const existingInstructor = await prisma.instructor.findUnique({ where: { email: data.email } });
+  if (existingInstructor) {
+    throw new Error("Email already registered");
+  }
+
+  return await prisma.instructor.create({
+    data: {
+      instructor_name: data.instructor_name,
+      email: data.email,
+      department: data.department,
+    },
+  });
+}
+
 export async function assignInstructor(courseId: string, instructorId: string, section: string) {
   const course = await prisma.course.findUnique({ where: { course_id: courseId } });
   if (!course) return null;
