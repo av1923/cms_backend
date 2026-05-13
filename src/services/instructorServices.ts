@@ -57,6 +57,20 @@ export async function assignInstructor(courseId: string, instructorId: string, s
   });
 }
 
+export async function getAllInstructors() {
+  const instructors = await prisma.instructor.findMany({
+    orderBy: { instructor_name: "asc" },
+  });
+
+  return instructors.map((instructor) => ({
+    instructor_id: instructor.instructor_id,
+    instructor_name: instructor.instructor_name,
+    email: instructor.email,
+    department: instructor.department,
+    created_at: instructor.created_at.toISOString(),
+  }));
+}
+
 export async function getInstructorsBySemester(semester: string) {
   const instructors = await prisma.instructor.findMany({
     include: {

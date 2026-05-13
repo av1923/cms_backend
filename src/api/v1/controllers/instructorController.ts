@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { assignInstructorSchema, createInstructorSchema } from "../validators/instructorValidator";
-import { createInstructor, assignInstructor, getInstructorsBySemester } from "../../../services/instructorServices";
+import { createInstructor, assignInstructor, getAllInstructors, getInstructorsBySemester } from "../../../services/instructorServices";
 import { logAudit } from "../../../services/auditLogServices";
 import { successResponse, commonErrors } from "../../../utils/response";
+
+export async function getAll(req: Request, res: Response, next: NextFunction) {
+  try {
+    const instructors = await getAllInstructors();
+    return successResponse(res, { instructors });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
