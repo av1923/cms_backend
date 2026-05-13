@@ -141,6 +141,4 @@ enum UserRole {
   DepartmentChair
   Registrar
   Admin
-  Student
-  ServiceAccount
 }

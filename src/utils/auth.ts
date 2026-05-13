@@ -20,17 +20,13 @@ export type UserRole =
   | "CurriculumCommittee"
   | "DepartmentChair"
   | "Registrar"
-  | "Admin"
-  | "Student"
-  | "ServiceAccount";
+  | "Admin";
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   CurriculumCommittee: ["POST /api/v1/courses", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
   DepartmentChair: ["PATCH /api/v1/courses/*/instructor", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
   Registrar: ["PATCH /api/v1/courses/*/sections", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
   Admin: ["*"],
-  Student: ["GET /api/v1/courses/catalog", "GET /api/v1/courses/*/prerequisites", "GET /api/v1/courses/*/pricing"],
-  ServiceAccount: ["GET /api/v1/courses/catalog", "GET /api/v1/courses/instructors", "POST /api/v1/courses/*/enroll", "POST /api/v1/courses/*/drop"],
 };
 
 export function hashPassword(password: string): string {

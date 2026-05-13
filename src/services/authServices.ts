@@ -5,7 +5,7 @@ export interface SignupData {
   name: string;
   email: string;
   password: string;
-  role?: UserRole;
+  role: UserRole;
 }
 
 export async function signupUser(data: SignupData) {
