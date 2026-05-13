@@ -24,7 +24,7 @@ export async function signupUser(data: SignupData) {
       name: data.name,
       email: data.email,
       password_hash: passwordHash,
-      role: data.role || "Student",
+      role: data.role,
     },
   });
 
