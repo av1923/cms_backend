@@ -74,7 +74,7 @@ export async function assign(req: Request, res: Response, next: NextFunction) {
       section_id: data.section_id,
       semester: data.semester,
       assignment_confirmed: true,
-      updated_at: assignment.updated_at.toISOString(),
+      assigned_at: assignment.assigned_at.toISOString(),
     });
   } catch (error: any) {
     if (error.message?.includes("not available")) {

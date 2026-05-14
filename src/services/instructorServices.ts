@@ -41,14 +41,37 @@ export async function assignInstructor(instructorId: string, sectionId: string, 
     throw new Error(`${instructorId} is not available for the requested semester and schedule.`);
   }
 
-  // Update the section with the instructor
-  return await prisma.section.update({
-    where: { section_id: sectionId },
-    data: { 
+  // Create or update instructor assignment
+  const assignment = await prisma.instructorAssignment.upsert({
+    where: {
+      course_id_section_semester: {
+        course_id: section.course_id,
+        section: section.section_code,
+        semester: semester,
+      },
+    },
+    update: {
       instructor_id: instructorId,
+      room: section.room,
+      schedule: section.schedule,
+    },
+    create: {
+      course_id: section.course_id,
+      instructor_id: instructorId,
+      section: section.section_code,
       semester: semester,
+      room: section.room,
+      schedule: section.schedule,
     },
   });
+
+  // Also update the section with instructor reference
+  await prisma.section.update({
+    where: { section_id: sectionId },
+    data: { instructor_id: instructorId },
+  });
+
+  return assignment;
 }
 
 export async function getAllInstructors() {
