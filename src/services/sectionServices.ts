@@ -76,43 +76,32 @@ export async function createSection(courseId: string, data: CreateSectionData) {
   if (!course) return null;
 
   // Check if section already exists for this course
-  const existingAssignment = await prisma.instructorAssignment.findFirst({
+  const existingSection = await prisma.section.findFirst({
     where: {
       course_id: courseId,
-      section: data.section,
+      section_code: data.section,
       semester: course.semester,
     },
   });
 
-  if (existingAssignment) {
+  if (existingSection) {
     throw new Error(`Section ${data.section} already exists for this course.`);
   }
 
-  return await prisma.$transaction(async (tx) => {
-    // Update course section capacity
-    const updated = await tx.course.update({
-      where: { course_id: courseId },
-      data: {
-        section_capacity: data.section_capacity,
-      },
-    });
-
-    // Create instructor assignment only if instructor_id is provided
-    if (data.instructor_id) {
-      await tx.instructorAssignment.create({
-        data: {
-          course_id: courseId,
-          instructor_id: data.instructor_id,
-          section: data.section,
-          semester: course.semester,
-          room: data.room,
-          schedule: data.schedule,
-        },
-      });
-    }
-
-    return updated;
+  // Create the section
+  const section = await prisma.section.create({
+    data: {
+      course_id: courseId,
+      section_code: data.section,
+      capacity: data.section_capacity,
+      room: data.room,
+      schedule: data.schedule,
+      semester: course.semester,
+      instructor_id: data.instructor_id || null,
+    },
   });
+
+  return section;
 }
 
 export async function updateSection(courseId: string, data: any) {
