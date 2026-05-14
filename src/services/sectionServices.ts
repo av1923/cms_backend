@@ -148,3 +148,25 @@ export async function deleteSection(sectionId: string) {
   await prisma.section.delete({ where: { section_id: sectionId } });
   return section;
 }
+
+export async function unassignInstructorFromSection(sectionId: string) {
+  const section = await prisma.section.findUnique({ where: { section_id: sectionId } });
+  if (!section) return null;
+
+  // Update section to remove instructor
+  await prisma.section.update({
+    where: { section_id: sectionId },
+    data: { instructor_id: null },
+  });
+
+  // Also update instructor_assignments to remove the assignment
+  await prisma.instructorAssignment.deleteMany({
+    where: {
+      course_id: section.course_id,
+      section: section.section_code,
+      semester: section.semester,
+    },
+  });
+
+  return section;
+}

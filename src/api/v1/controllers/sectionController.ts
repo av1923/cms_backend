@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { updateSectionSchema, createSectionSchema } from "../validators/sectionValidator";
-import { getAllSections, getSectionById, getSectionsByCourse, createSection, updateSection, deleteSection } from "../../../services/sectionServices";
+import { getAllSections, getSectionById, getSectionsByCourse, createSection, updateSection, deleteSection, unassignInstructorFromSection } from "../../../services/sectionServices";
 import { logAudit } from "../../../services/auditLogServices";
 import { successResponse, commonErrors } from "../../../utils/response";
 
@@ -143,6 +143,34 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
     if (error.message?.includes("enrolled students")) {
       return commonErrors.conflict(res, error.message);
     }
+    next(error);
+  }
+}
+
+export async function unassignInstructor(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = req.params.id as string;
+    const section = await unassignInstructorFromSection(id);
+    
+    if (!section) {
+      return commonErrors.notFound(res, "Section not found.");
+    }
+
+    await logAudit(
+      req.user!.userId,
+      req.user!.role,
+      "INSTRUCTOR_UNASSIGNED",
+      id,
+      { section_id: id, section_code: section.section_code },
+      req.ip || undefined
+    );
+
+    return successResponse(res, {
+      message: "Instructor unassigned successfully",
+      section_id: id,
+      section_code: section.section_code,
+    });
+  } catch (error) {
     next(error);
   }
 }
