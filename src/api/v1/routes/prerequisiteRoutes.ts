@@ -4,7 +4,10 @@ import { authenticate, authorize } from "../../../middleware/auth";
 
 const router = Router();
 
-router.get("/:id/prerequisites", authenticate, get);
-router.put("/:id/prerequisites", authenticate, authorize("PUT", "/api/v1/courses/*/prerequisites"), update);
+// GET /api/v1/prerequisites/:courseId - Get prerequisites for a course
+router.get("/:courseId", authenticate, get);
+
+// PUT /api/v1/prerequisites/:courseId - Update prerequisites for a course
+router.put("/:courseId", authenticate, authorize("PUT", "/api/v1/prerequisites"), update);
 
 export default router;

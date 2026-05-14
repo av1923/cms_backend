@@ -1,8 +1,43 @@
 import { Request, Response, NextFunction } from "express";
 import { updateSectionSchema, createSectionSchema } from "../validators/sectionValidator";
-import { createSection, updateSection } from "../../../services/sectionServices";
+import { getAllSections, getSectionById, getSectionsByCourse, createSection, updateSection, deleteSection } from "../../../services/sectionServices";
 import { logAudit } from "../../../services/auditLogServices";
 import { successResponse, commonErrors } from "../../../utils/response";
+
+export async function getAll(req: Request, res: Response, next: NextFunction) {
+  try {
+    const sections = await getAllSections();
+    return successResponse(res, { sections });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getById(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = req.params.id as string;
+    const section = await getSectionById(id);
+    if (!section) {
+      return commonErrors.notFound(res, "Section not found.");
+    }
+    return successResponse(res, { section });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getByCourse(req: Request, res: Response, next: NextFunction) {
+  try {
+    const courseId = (req.params.courseId || req.params.id) as string;
+    const sections = await getSectionsByCourse(courseId);
+    if (sections === null) {
+      return commonErrors.notFound(res, "Course not found.");
+    }
+    return successResponse(res, { sections });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -70,6 +105,37 @@ export async function update(req: Request, res: Response, next: NextFunction) {
   } catch (error: any) {
     if (error.message?.includes("cannot be less")) {
       return commonErrors.unprocessable(res, error.message);
+    }
+    next(error);
+  }
+}
+
+export async function remove(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = req.params.id as string;
+    const deleted = await deleteSection(id);
+    
+    if (!deleted) {
+      return commonErrors.notFound(res, "Section not found.");
+    }
+
+    await logAudit(
+      req.user!.userId,
+      req.user!.role,
+      "SECTION_DELETED",
+      id,
+      { section_id: id, section_code: deleted.section_code },
+      req.ip || undefined
+    );
+
+    return successResponse(res, {
+      message: "Section deleted successfully",
+      section_id: id,
+      section_code: deleted.section_code,
+    });
+  } catch (error: any) {
+    if (error.message?.includes("enrolled students")) {
+      return commonErrors.conflict(res, error.message);
     }
     next(error);
   }

@@ -8,6 +8,69 @@ export interface CreateSectionData {
   instructor_id?: string;
 }
 
+export async function getAllSections() {
+  return await prisma.section.findMany({
+    include: {
+      course: {
+        select: {
+          course_id: true,
+          course_code: true,
+          course_name: true,
+        },
+      },
+      instructor: {
+        select: {
+          instructor_id: true,
+          instructor_name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: { created_at: "desc" },
+  });
+}
+
+export async function getSectionById(sectionId: string) {
+  return await prisma.section.findUnique({
+    where: { section_id: sectionId },
+    include: {
+      course: {
+        select: {
+          course_id: true,
+          course_code: true,
+          course_name: true,
+        },
+      },
+      instructor: {
+        select: {
+          instructor_id: true,
+          instructor_name: true,
+          email: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getSectionsByCourse(courseId: string) {
+  const course = await prisma.course.findUnique({ where: { course_id: courseId } });
+  if (!course) return null;
+
+  return await prisma.section.findMany({
+    where: { course_id: courseId },
+    include: {
+      instructor: {
+        select: {
+          instructor_id: true,
+          instructor_name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: { section_code: "asc" },
+  });
+}
+
 export async function createSection(courseId: string, data: CreateSectionData) {
   const course = await prisma.course.findUnique({ where: { course_id: courseId } });
   if (!course) return null;
@@ -80,4 +143,17 @@ export async function updateSection(courseId: string, data: any) {
 
     return updated;
   });
+}
+
+export async function deleteSection(sectionId: string) {
+  const section = await prisma.section.findUnique({ where: { section_id: sectionId } });
+  if (!section) return null;
+
+  // Check if there are enrolled students
+  if (section.enrolled_count > 0) {
+    throw new Error("Cannot delete section with enrolled students.");
+  }
+
+  await prisma.section.delete({ where: { section_id: sectionId } });
+  return section;
 }

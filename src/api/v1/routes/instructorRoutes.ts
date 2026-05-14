@@ -4,9 +4,16 @@ import { authenticate, authorize } from "../../../middleware/auth";
 
 const router = Router();
 
-router.post("/instructors", authenticate, authorize("POST", "/api/v1/courses/instructors"), create);
-router.get("/instructors", authenticate, getAll);
-router.patch("/:id/instructor", authenticate, authorize("PATCH", "/api/v1/courses/*/instructor"), assign);
-router.get("/instructors/assignments", authenticate, getAssignments);
+// GET /api/v1/instructors - Get all instructors
+router.get("/", authenticate, getAll);
+
+// POST /api/v1/instructors - Create new instructor
+router.post("/", authenticate, authorize("POST", "/api/v1/instructors"), create);
+
+// GET /api/v1/instructors/assignments - Get instructor assignments by semester
+router.get("/assignments", authenticate, getAssignments);
+
+// POST /api/v1/instructors/:id/assign - Assign instructor to course section
+router.post("/:id/assign", authenticate, authorize("POST", "/api/v1/instructors/*/assign"), assign);
 
 export default router;

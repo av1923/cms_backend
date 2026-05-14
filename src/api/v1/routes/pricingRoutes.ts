@@ -4,6 +4,7 @@ import { authenticate } from "../../../middleware/auth";
 
 const router = Router();
 
-router.get("/:id/pricing", authenticate, getPricing);
+// GET /api/v1/pricing/:courseId - Get pricing for a course
+router.get("/:courseId", authenticate, getPricing);
 
 export default router;
