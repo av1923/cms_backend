@@ -41,10 +41,16 @@ export async function getByCourse(req: Request, res: Response, next: NextFunctio
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = req.params.id as string;
+    // Support both: POST /sections (body has course_id) and POST /courses/:id/sections (params has id)
+    const courseId = req.params.id || req.body.course_id;
+    
+    if (!courseId) {
+      return commonErrors.badRequest(res, "course_id is required");
+    }
+    
     const data = createSectionSchema.parse(req.body);
 
-    const created = await createSection(id, data);
+    const created = await createSection(courseId, data);
     if (!created) {
       return commonErrors.notFound(res, "Course not found.");
     }
@@ -53,13 +59,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       req.user!.userId,
       req.user!.role,
       "SECTION_CREATED",
-      id,
+      courseId,
       { section: data.section, section_capacity: data.section_capacity, room: data.room, schedule: data.schedule, instructor_id: data.instructor_id },
       req.ip || undefined
     );
 
     return successResponse(res, {
-      course_id: id,
+      course_id: courseId,
       section: data.section,
       section_capacity: data.section_capacity,
       room: data.room,
