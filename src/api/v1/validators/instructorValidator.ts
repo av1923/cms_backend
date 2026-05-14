@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const assignInstructorSchema = z.object({
-  instructor_id: z.string().min(1),
-  section: z.string().min(1).max(10),
+  section_id: z.string().min(1),
+  semester: z.string().min(1),
 });
 
 export const createInstructorSchema = z.object({

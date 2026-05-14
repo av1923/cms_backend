@@ -52,33 +52,36 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function assign(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = req.params.id as string;
+    const instructorId = req.params.id as string;
     const data = assignInstructorSchema.parse(req.body);
 
-    const assignment = await assignInstructor(id, data.instructor_id, data.section);
+    const assignment = await assignInstructor(instructorId, data.section_id, data.semester);
     if (!assignment) {
-      return commonErrors.notFound(res, "Course not found.");
+      return commonErrors.notFound(res, "Section not found.");
     }
 
     await logAudit(
       req.user!.userId,
       req.user!.role,
       "INSTRUCTOR_ASSIGNED",
-      id,
-      { instructor_id: data.instructor_id, section: data.section },
+      data.section_id,
+      { instructor_id: instructorId, section_id: data.section_id, semester: data.semester },
       req.ip || undefined
     );
 
     return successResponse(res, {
-      course_id: id,
-      section: data.section,
-      instructor_id: data.instructor_id,
+      instructor_id: instructorId,
+      section_id: data.section_id,
+      semester: data.semester,
       assignment_confirmed: true,
-      updated_at: assignment.assigned_at.toISOString(),
+      updated_at: assignment.updated_at.toISOString(),
     });
   } catch (error: any) {
     if (error.message?.includes("not available")) {
       return commonErrors.unprocessable(res, "Invalid instructor assignment.", error.message);
+    }
+    if (error.name === "ZodError") {
+      return res.status(400).json({ code: 400, message: error.errors });
     }
     next(error);
   }

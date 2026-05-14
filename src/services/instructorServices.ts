@@ -22,37 +22,31 @@ export async function createInstructor(data: CreateInstructorData) {
   });
 }
 
-export async function assignInstructor(courseId: string, instructorId: string, section: string) {
-  const course = await prisma.course.findUnique({ where: { course_id: courseId } });
-  if (!course) return null;
+export async function assignInstructor(instructorId: string, sectionId: string, semester: string) {
+  // Get the section to find course info
+  const section = await prisma.section.findUnique({ where: { section_id: sectionId } });
+  if (!section) return null;
 
+  // Check for conflicts - instructor teaching another section at same time
   const existing = await prisma.instructorAssignment.findFirst({
     where: {
       instructor_id: instructorId,
-      semester: course.semester,
-      section,
-      NOT: { course_id: courseId },
+      semester: semester,
+      schedule: section.schedule,
+      NOT: { course_id: section.course_id },
     },
   });
 
   if (existing) {
-    throw new Error(`${instructorId} is not available for the requested semester and section.`);
+    throw new Error(`${instructorId} is not available for the requested semester and schedule.`);
   }
 
-  return await prisma.instructorAssignment.upsert({
-    where: {
-      course_id_section_semester: {
-        course_id: courseId,
-        section,
-        semester: course.semester,
-      },
-    },
-    update: { instructor_id: instructorId },
-    create: {
-      course_id: courseId,
+  // Update the section with the instructor
+  return await prisma.section.update({
+    where: { section_id: sectionId },
+    data: { 
       instructor_id: instructorId,
-      section,
-      semester: course.semester,
+      semester: semester,
     },
   });
 }
