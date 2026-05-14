@@ -97,17 +97,19 @@ export async function createSection(courseId: string, data: CreateSectionData) {
       },
     });
 
-    // Create instructor assignment if section is provided
-    await tx.instructorAssignment.create({
-      data: {
-        course_id: courseId,
-        instructor_id: data.instructor_id || "unassigned",
-        section: data.section,
-        semester: course.semester,
-        room: data.room,
-        schedule: data.schedule,
-      },
-    });
+    // Create instructor assignment only if instructor_id is provided
+    if (data.instructor_id) {
+      await tx.instructorAssignment.create({
+        data: {
+          course_id: courseId,
+          instructor_id: data.instructor_id,
+          section: data.section,
+          semester: course.semester,
+          room: data.room,
+          schedule: data.schedule,
+        },
+      });
+    }
 
     return updated;
   });
