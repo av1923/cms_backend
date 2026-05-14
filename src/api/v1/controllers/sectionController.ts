@@ -1,8 +1,44 @@
 import { Request, Response, NextFunction } from "express";
-import { updateSectionSchema } from "../validators/sectionValidator";
-import { updateSection } from "../../../services/sectionServices";
+import { updateSectionSchema, createSectionSchema } from "../validators/sectionValidator";
+import { createSection, updateSection } from "../../../services/sectionServices";
 import { logAudit } from "../../../services/auditLogServices";
 import { successResponse, commonErrors } from "../../../utils/response";
+
+export async function create(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = req.params.id as string;
+    const data = createSectionSchema.parse(req.body);
+
+    const created = await createSection(id, data);
+    if (!created) {
+      return commonErrors.notFound(res, "Course not found.");
+    }
+ 
+    await logAudit(
+      req.user!.userId,
+      req.user!.role,
+      "SECTION_CREATED",
+      id,
+      { section: data.section, section_capacity: data.section_capacity, room: data.room, schedule: data.schedule, instructor_id: data.instructor_id },
+      req.ip || undefined
+    );
+
+    return successResponse(res, {
+      course_id: id,
+      section: data.section,
+      section_capacity: data.section_capacity,
+      room: data.room,
+      schedule: data.schedule,
+      instructor_id: data.instructor_id,
+      created_at: new Date().toISOString(),
+    }, 201);
+  } catch (error: any) {
+    if (error.message?.includes("already exists")) {
+      return commonErrors.conflict(res, error.message);
+    }
+    next(error);
+  }
+}
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {

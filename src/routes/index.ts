@@ -12,11 +12,11 @@ const router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/courses", instructorRoutes);
-router.use("/courses", courseRoutes);
 router.use("/courses", sectionRoutes);
 router.use("/courses", prerequisiteRoutes);
 router.use("/courses", pricingRoutes);
 router.use("/courses", availabilityRoutes);
 router.use("/courses", catalogRoutes);
+router.use("/courses", courseRoutes);
 
 export default router;

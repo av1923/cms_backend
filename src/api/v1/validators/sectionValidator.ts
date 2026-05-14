@@ -6,3 +6,11 @@ export const updateSectionSchema = z.object({
   room: z.string().max(50).optional(),
   schedule: z.string().max(50).optional(),
 });
+
+export const createSectionSchema = z.object({
+  section: z.string().min(1).max(10),
+  section_capacity: z.number().int().positive(),
+  room: z.string().max(50).optional(),
+  schedule: z.string().max(50).optional(),
+  instructor_id: z.string().optional(),
+});
