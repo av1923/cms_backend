@@ -6,7 +6,7 @@ import { successResponse, commonErrors } from "../../../utils/response";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = req.params.id as string;
+    const id = req.params.courseId as string;
     const result = await getPrerequisites(id);
 
     if (!result) {
@@ -27,7 +27,7 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = req.params.id as string;
+    const id = req.params.courseId as string;
     const data = updatePrerequisitesSchema.parse(req.body);
 
     const result = await updatePrerequisites(id, data);
@@ -52,9 +52,18 @@ export async function update(req: Request, res: Response, next: NextFunction) {
       updated_at: new Date().toISOString(),
     });
   } catch (error: any) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        code: 400,
+        message: "Validation error",
+        errors: error.errors,
+      });
+    }
     if (error.message?.includes("cannot be its own")) {
       return commonErrors.badRequest(res, error.message);
     }
-    next(error);
+    // Log the actual error for debugging
+    console.error("Prerequisite update error:", error);
+    return commonErrors.badRequest(res, error.message || "Failed to save prerequisite configuration");
   }
 }

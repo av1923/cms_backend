@@ -33,6 +33,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (error.message === "Invalid credentials") {
       return commonErrors.unauthorized(res, "Invalid email or password.");
     }
+    if (error.message === "Please use Google Sign-In for this account") {
+      return res.status(400).json({ 
+        code: 400, 
+        message: "This account uses Google Sign-In. Please use the 'Continue with Google' button." 
+      });
+    }
     if (error.message === "Account is disabled") {
       return res.status(403).json({ code: 403, message: "Account is disabled" });
     }

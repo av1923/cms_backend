@@ -10,7 +10,8 @@ model User {
   user_id       String   @id @default(cuid())
   name          String
   email         String   @unique
-  password_hash String
+  password_hash String?
+  google_id     String?  @unique
   role          UserRole
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())

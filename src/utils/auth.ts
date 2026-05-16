@@ -23,9 +23,9 @@ export type UserRole =
   | "Admin";
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  CurriculumCommittee: ["POST /api/v1/courses", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
-  DepartmentChair: ["PATCH /api/v1/courses/*/instructor", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
-  Registrar: ["PATCH /api/v1/courses/*/sections", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*"],
+  CurriculumCommittee: ["POST /api/v1/courses", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*", "GET /api/v1/audit-logs"],
+  DepartmentChair: ["PATCH /api/v1/courses/*/instructor", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*", "GET /api/v1/audit-logs"],
+  Registrar: ["PATCH /api/v1/courses/*/sections", "GET /api/v1/courses/catalog", "GET /api/v1/courses/*", "GET /api/v1/audit-logs"],
   Admin: ["*"],
 };
 

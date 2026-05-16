@@ -7,6 +7,7 @@ import prerequisiteRoutes from "../api/v1/routes/prerequisiteRoutes";
 import catalogRoutes from "../api/v1/routes/catalogRoutes";
 import pricingRoutes from "../api/v1/routes/pricingRoutes";
 import availabilityRoutes from "../api/v1/routes/availabilityRoutes";
+import auditLogRoutes from "../api/v1/routes/auditLogRoutes";
 
 const router = Router();
 
@@ -33,5 +34,8 @@ router.use("/availability", availabilityRoutes);
 
 // Catalog - Public course catalog
 router.use("/catalog", catalogRoutes);
+
+// Audit Logs - Security logs
+router.use("/audit-logs", auditLogRoutes);
 
 export default router;

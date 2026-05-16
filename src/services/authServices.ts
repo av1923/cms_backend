@@ -51,6 +51,11 @@ export async function loginUser(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   
   if (user) {
+    // Check if user has a password (OAuth users might not have one)
+    if (!user.password_hash) {
+      throw new Error("Please use Google Sign-In for this account");
+    }
+
     // Verify password
     if (!verifyPassword(password, user.password_hash)) {
       throw new Error("Invalid credentials");

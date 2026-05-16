@@ -64,7 +64,7 @@ export async function assign(req: Request, res: Response, next: NextFunction) {
       req.user!.userId,
       req.user!.role,
       "INSTRUCTOR_ASSIGNED",
-      data.section_id,
+      assignment.course_id,  // Use course_id from the assignment, not section_id
       { instructor_id: instructorId, section_id: data.section_id, semester: data.semester },
       req.ip || undefined
     );

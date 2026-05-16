@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { signup, login, refresh } from "../controllers/authController";
+import { refresh } from "../controllers/authController";
+import { googleAuth } from "../controllers/googleAuthController";
 
 const router = Router();
 
-router.post("/signup", signup);
-router.post("/login", login);
+// Google-only authentication
+router.post("/google", googleAuth);
+
+// Keep refresh token endpoint for session management
 router.post("/refresh", refresh);
+
+// Email/password routes removed - Google only
 
 export default router;
