@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { create, update, remove, unassignInstructor, getByCourse, getAll, getById } from "../controllers/sectionController";
 import { authenticate, authorize } from "../../../middleware/auth";
+import { combinedAuth } from "../../../middleware/combinedAuth";
 
 const router = Router();
 
 // Get all sections
-router.get("/", authenticate, getAll);
+router.get("/", combinedAuth, getAll);
 
 // Get sections by course ID
 router.get("/course/:courseId", authenticate, getByCourse);
