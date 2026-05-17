@@ -10,6 +10,4 @@ router.post("/google", googleAuth);
 // Keep refresh token endpoint for session management
 router.post("/refresh", refresh);
 
-// Email/password routes removed - Google only
-
 export default router;
